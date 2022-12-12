@@ -1,5 +1,5 @@
-Part 2: Simple Selects and Counts
-What are all the types of pokemon that a pokemon can have?
+# Part 2: Simple Selects and Counts
+# What are all the types of pokemon that a pokemon can have?
 SELECT * FROM types;
 +----+----------+
 | id | name     |
@@ -24,7 +24,7 @@ SELECT * FROM types;
 | 18 | Flying   |
 +----+----------+
 
-What is the name of the pokemon with id 45?
+# What is the name of the pokemon with id 45?
 SELECT * FROM pokemons WHERE id = 45;
 +----+-------+--------------+----------------+
 | id | name  | primary_type | secondary_type |
@@ -32,7 +32,7 @@ SELECT * FROM pokemons WHERE id = 45;
 | 45 | Eevee |            1 |           NULL |
 +----+-------+--------------+----------------+
 
-How many pokemon are there?
+# How many pokemon are there?
 SELECT COUNT(*) name FROM pokemons;
 +------+
 | name |
@@ -40,7 +40,7 @@ SELECT COUNT(*) name FROM pokemons;
 |  656 |
 +------+
 
-How many types are there?
+# How many types are there?
 SELECT COUNT(*) name FROM types;
 +------+
 | name |
@@ -48,7 +48,7 @@ SELECT COUNT(*) name FROM types;
 |   18 |
 +------+
 
-How many pokemon have a secondary type?
+# How many pokemon have a secondary type?
 SELECT COUNT(*) FROM secondary_type FROM pokemons WHERE secondary_type IS NOT NULL;
 +----------------+
 | secondary_type |
@@ -57,8 +57,8 @@ SELECT COUNT(*) FROM secondary_type FROM pokemons WHERE secondary_type IS NOT NU
 +----------------+
 
 
-Part 3: Joins and Groups
-What is each pokemon's primary type?
+# Part 3: Joins and Groups
+# What is each pokemon's primary type?
 SELECT pokemons.name, types.name FROM types JOIN pokemons ON types.id = secondary_type;
 +-------------+----------+
 | name        | name     |
@@ -721,21 +721,21 @@ SELECT pokemons.name, types.name FROM types JOIN pokemons ON types.id = secondar
 | Spewpa      | Bug      |
 +-------------+----------+
 
-What is Rufflet's secondary type?
+# What is Rufflet's secondary type?
 SELECT types.name FROM types JOIN pokemons ON types.id = secondary_type WHERE pokemons.name = 'Rufflet';
 +--------+
 | name   |
 +--------+
 | Flying |
 +--------+
-//below - even better visual
+# //below - even better visual
 SELECT pokemons.name, types.name FROM types JOIN pokemons ON types.id = secondary_type WHERE pokemons.name = 'Rufflet';
 +---------+--------+
 | name    | name   |
 +---------+--------+
 | Rufflet | Flying |
 +---------+--------+
-//solution below didn't give the corresponding type to the type id of pokemon
+# //solution below didn't give the corresponding type to the type id of pokemon
 SELECT secondary_type FROM pokemons WHERE name = 'Rufflet';
 +----------------+
 | secondary_type |
@@ -743,7 +743,7 @@ SELECT secondary_type FROM pokemons WHERE name = 'Rufflet';
 |             18 |
 +----------------+
 
-What are the names of the pokemon that belong to the trainer with trainerID 303?
+# What are the names of the pokemon that belong to the trainer with trainerID 303?
 SELECT name FROM pokemons JOIN pokemon_trainer ON pokemons.id = pokemon_id WHERE trainerID = 303;
 +-----------+
 | name      |
@@ -752,7 +752,7 @@ SELECT name FROM pokemons JOIN pokemon_trainer ON pokemons.id = pokemon_id WHERE
 | Vileplume |
 +-----------+
 
-How many pokemon have a secondary type Poison
+# How many pokemon have a secondary type Poison
 SELECT COUNT(*) secondary_type FROM pokemons JOIN types ON types.id = pokemons.secondary_type WHERE types.name = 'Poison';
 +----------------+
 | secondary_type |
@@ -760,7 +760,7 @@ SELECT COUNT(*) secondary_type FROM pokemons JOIN types ON types.id = pokemons.s
 |             31 |
 +----------------+
 
-What are all the primary types and how many pokemon have that type?
+# What are all the primary types and how many pokemon have that type?
 SELECT types.name, COUNT(*) FROM pokemons JOIN types ON pokemons.primary_type = types.id GROUP BY primary_type;
 +----------+----------+
 | name     | count(*) |
@@ -785,7 +785,7 @@ SELECT types.name, COUNT(*) FROM pokemons JOIN types ON pokemons.primary_type = 
 | Flying   |        1 |
 +----------+----------+
 
-How many pokemon at level 100 does each trainer with at least one level 100 pokemon have?
+# How many pokemon at level 100 does each trainer with at least one level 100 pokemon have?
 SELECT trainerID, COUNT(*) FROM pokemon_trainer WHERE pokelevel > 99 GROUP BY trainerID;
 +-----------+----------+
 | trainerID | count(*) |
@@ -986,16 +986,80 @@ SELECT trainerID, COUNT(*) FROM pokemon_trainer WHERE pokelevel > 99 GROUP BY tr
 |     11696 |        2 |
 +-----------+----------+
 
-How many pokemon only belong to one trainer and no other?
-//select pokemon.name
-//get # of trainers per pokemon? and filter for 1 # of trainer
+# How many pokemon only belong to one trainer and no other?
+# //select pokemon.name
+# //get # of trainers per pokemon? and filter for 1 # of trainer
+SELECT pokemons.name, COUNT(*) FROM pokemon_trainer JOIN pokemons
+ON pokemon_trainer.pokemon_id = pokemons.id
+GROUP BY pokemon_id HAVING COUNT(trainerID) = 1;
++------------+----------+
+| name       | count(*) |
++------------+----------+
+| Clawitzer  |        1 |
+| Barbaracle |        1 |
+| Tynamo     |        1 |
+| Rufflet    |        1 |
+| Lugia      |        1 |
+| Binacle    |        1 |
+| Malamar    |        1 |
+| Zekrom     |        1 |
+| Reshiram   |        1 |
+| Happiny    |        1 |
+| Zweilous   |        1 |
+| Swirlix    |        1 |
+| Spewpa     |        1 |
++------------+----------+
 
 
+# Part 4: Final Report
+SELECT p.name 'Pokemon Name', t.trainername 'Trainer Name',
+pt.pokelevel 'Level', pr.name 'Primary Type',
+sec.name 'Secondary Type'
+FROM pokemon_trainer pt
+JOIN pokemons p ON pt.pokemon_id=p.id
+JOIN trainers t ON t.trainerId=pt.trainerID
+JOIN types pr ON pr.id=p.primary_type
+JOIN types sec ON sec.id=p.secondary_type;
+ORDER BY pt.defense DESC, pt.attack DESC, pt.hp DESC;
 
-pokemon_trainer table
-+-----------+-----------+------+-------+--------+---------+-------+-------+-------+------------+
-| trainerID | pokelevel | hp   | maxhp | attack | defense | spatk | spdef | speed | pokemon_id |
-+-----------+-----------+------+-------+--------+---------+-------+-------+-------+------------+
-|         0 |        60 |  157 |   157 |     50 |      68 |    50 |    80 |   116 |          1 |
-|         1 |        30 |   83 |    83 |     27 |      36 |    27 |    42 |    60 |          1 |
-|         2 |        57 |  281 |   281 |    128 |      76 |   128 |    76 |    93 |          2 |
+# did defense first so won't die as quick, then attack, and then hp
+
+# notes
+mysql> describe pokemon_trainer
++------------+------+------+-----+---------+-------+
+| Field      | Type | Null | Key | Default | Extra |
++------------+------+------+-----+---------+-------+
+| trainerID  | int  | YES  |     | NULL    |       |
+| pokelevel  | int  | YES  |     | NULL    |       |
+| hp         | int  | YES  |     | NULL    |       |
+| maxhp      | int  | YES  |     | NULL    |       |
+| attack     | int  | YES  |     | NULL    |       |
+| defense    | int  | YES  |     | NULL    |       |
+| spatk      | int  | YES  |     | NULL    |       |
+| spdef      | int  | YES  |     | NULL    |       |
+| speed      | int  | YES  |     | NULL    |       |
+| pokemon_id | int  | YES  |     | NULL    |       |
++------------+------+------+-----+---------+-------+
+mysql> describe pokemons;
++----------------+------+------+-----+---------+----------------+
+| Field          | Type | Null | Key | Default | Extra          |
++----------------+------+------+-----+---------+----------------+
+| id             | int  | NO   | PRI | NULL    | auto_increment |
+| name           | text | NO   |     | NULL    |                |
+| primary_type   | int  | NO   |     | NULL    |                |
+| secondary_type | int  | YES  |     | NULL    |                |
++----------------+------+------+-----+---------+----------------+
+mysql> describe trainers;
++-------------+------+------+-----+---------+-------+
+| Field       | Type | Null | Key | Default | Extra |
++-------------+------+------+-----+---------+-------+
+| trainerID   | int  | NO   | PRI | NULL    |       |
+| trainername | text | YES  |     | NULL    |       |
++-------------+------+------+-----+---------+-------+
+mysql> describe types;
++-------+------+------+-----+---------+----------------+
+| Field | Type | Null | Key | Default | Extra          |
++-------+------+------+-----+---------+----------------+
+| id    | int  | NO   | PRI | NULL    | auto_increment |
+| name  | text | NO   |     | NULL    |                |
++-------+------+------+-----+---------+----------------+
